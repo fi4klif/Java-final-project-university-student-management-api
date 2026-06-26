@@ -19,52 +19,53 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class EnrollmentService {
-    private final EnrollmentRepository enrollmentRepository;
-    private final StudentRepository studentRepository;
-    private final CourseRepository courseRepository;
-    private final StudentService studentService;
-    private final EnrollmentMapper enrollmentMapper;
+        private final EnrollmentRepository enrollmentRepository;
+        private final StudentRepository studentRepository;
+        private final CourseRepository courseRepository;
+        private final StudentService studentService;
+        private final EnrollmentMapper enrollmentMapper;
 
-    public EnrollmentDTO enrollStudent(EnrollmentDTO dto) {
-        Student student = studentRepository.findById(dto.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Студент не знайдений"));
-        Course course = courseRepository.findById(dto.getCourseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Курс не знайдений"));
+        public EnrollmentDTO enrollStudent(EnrollmentDTO dto) {
+                Student student = studentRepository.findById(dto.getStudentId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Студент не знайдений"));
+                Course course = courseRepository.findById(dto.getCourseId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Курс не знайдений"));
 
-        Enrollment enrollment = Enrollment.builder()
-                .student(student)
-                .course(course)
-                .enrollmentDate(dto.getEnrollmentDate() != null ? dto.getEnrollmentDate() : LocalDate.now())
-                .grade(dto.getGrade())
-                .paid(false)
-                .build();
+                Enrollment enrollment = Enrollment.builder()
+                                .student(student)
+                                .course(course)
+                                .enrollmentDate(dto.getEnrollmentDate() != null ? dto.getEnrollmentDate()
+                                                : LocalDate.now())
+                                .grade(dto.getGrade())
+                                .paid(false)
+                                .build();
 
-        return enrollmentMapper.toDTO(enrollmentRepository.save(enrollment));
-    }
+                return enrollmentMapper.toDTO(enrollmentRepository.save(enrollment));
+        }
 
-    public List<EnrollmentDTO> getAllEnrollments() {
-        return enrollmentRepository.findAll().stream()
-                .map(enrollmentMapper::toDTO)
-                .collect(Collectors.toList());
-    }
+        public List<EnrollmentDTO> getAllEnrollments() {
+                return enrollmentRepository.findAll().stream()
+                                .map(enrollmentMapper::toDTO)
+                                .collect(Collectors.toList());
+        }
 
-    public EnrollmentDTO updateGrade(Long enrollmentId, Double grade) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Зарахування не знайдено"));
+        public EnrollmentDTO updateGrade(Long enrollmentId, Double grade) {
+                Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Зарахування не знайдено"));
 
-        enrollment.setGrade(grade);
-        Enrollment saved = enrollmentRepository.save(enrollment);
+                enrollment.setGrade(grade);
+                Enrollment saved = enrollmentRepository.save(enrollment);
 
-        studentService.recalculateGPA(saved.getStudent().getId());
+                studentService.recalculateGPA(saved.getStudent().getId());
 
-        return enrollmentMapper.toDTO(saved);
-    }
+                return enrollmentMapper.toDTO(saved);
+        }
 
-    public EnrollmentDTO payCourse(Long enrollmentId) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Зарахування не знайдено"));
+        public EnrollmentDTO payCourse(Long enrollmentId) {
+                Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Зарахування не знайдено"));
 
-        enrollment.setPaid(true);
-        return enrollmentMapper.toDTO(enrollmentRepository.save(enrollment));
-    }
+                enrollment.setPaid(true);
+                return enrollmentMapper.toDTO(enrollmentRepository.save(enrollment));
+        }
 }

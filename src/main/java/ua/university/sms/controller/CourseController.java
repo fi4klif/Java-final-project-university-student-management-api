@@ -1,21 +1,27 @@
 package ua.university.sms.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+
 import ua.university.sms.model.dto.CourseDTO;
 import ua.university.sms.service.CourseService;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
 public class CourseController {
+
     private final CourseService courseService;
 
     @GetMapping
-    public List<CourseDTO> getAll() {
-        return courseService.getAllCourses();
+    public List<CourseDTO> getAll(@RequestParam(required = false) Long teacherId,
+            @RequestParam(required = false) Integer credits) {
+        return courseService.getCourses(teacherId, credits);
     }
 
     @GetMapping("/{id}")
@@ -24,12 +30,13 @@ public class CourseController {
     }
 
     @PostMapping
-    public CourseDTO create(@RequestBody CourseDTO dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CourseDTO create(@Valid @RequestBody CourseDTO dto) {
         return courseService.createCourse(dto);
     }
 
     @PutMapping("/{id}")
-    public CourseDTO update(@PathVariable Long id, @RequestBody CourseDTO dto) {
+    public CourseDTO update(@PathVariable Long id, @Valid @RequestBody CourseDTO dto) {
         return courseService.updateCourse(id, dto);
     }
 

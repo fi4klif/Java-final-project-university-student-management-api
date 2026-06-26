@@ -1,6 +1,8 @@
 package ua.university.sms.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ua.university.sms.model.dto.EnrollmentDTO;
 import ua.university.sms.service.EnrollmentService;
@@ -13,6 +15,7 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public EnrollmentDTO enroll(@RequestBody EnrollmentDTO dto) {
         return enrollmentService.enrollStudent(dto);
     }

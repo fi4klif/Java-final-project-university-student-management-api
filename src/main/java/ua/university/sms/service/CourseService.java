@@ -69,4 +69,12 @@ public class CourseService {
     public Double getAverageGpa(Long courseId) {
         return courseRepository.getAverageGradeByCourseId(courseId);
     }
+
+    public List<CourseDTO> getCourses(Long teacherId, Integer credits) {
+        if (teacherId != null || credits != null) {
+            return courseRepository.filterCourses(teacherId, credits).stream()
+                    .map(courseMapper::toDTO).toList();
+        }
+        return getAllCourses();
+    }
 }

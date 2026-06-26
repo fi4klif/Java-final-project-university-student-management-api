@@ -5,6 +5,7 @@ import ua.university.sms.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class StudentController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public StudentDTO create(@Valid @RequestBody StudentDTO dto) {
         return studentService.createStudent(dto);
     }

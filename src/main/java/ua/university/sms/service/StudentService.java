@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ua.university.sms.exception.ResourceNotFoundException;
 import ua.university.sms.mapper.StudentMapper;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,6 +24,9 @@ public class StudentService {
 
     public StudentDTO createStudent(StudentDTO dto) {
         Student student = studentMapper.toEntity(dto);
+        student.setEnrollmentDate(LocalDate.now());
+        student.setStatus("ACTIVE");
+        student.setGpa(0.0);
         return studentMapper.toDTO(studentRepository.save(student));
     }
 

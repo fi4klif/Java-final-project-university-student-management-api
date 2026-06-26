@@ -1,8 +1,12 @@
 package ua.university.sms.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 import ua.university.sms.model.dto.TeacherDTO;
 import ua.university.sms.service.TeacherService;
 
@@ -26,7 +30,8 @@ public class TeacherController {
     }
 
     @PostMapping
-    public TeacherDTO create(@RequestBody TeacherDTO dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public TeacherDTO create(@Valid @RequestBody TeacherDTO dto) {
         return teacherService.createTeacher(dto);
     }
 
