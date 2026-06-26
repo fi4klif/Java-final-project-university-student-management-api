@@ -18,7 +18,8 @@ public class Teacher {
     private String firstName;
     private String lastName;
     private String email;
-    private String specialization;
+    private String department;
+    private String status;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
     private List<Course> courses;

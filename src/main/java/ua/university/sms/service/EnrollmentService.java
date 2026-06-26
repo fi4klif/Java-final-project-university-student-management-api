@@ -1,17 +1,20 @@
 package ua.university.sms.service;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 import ua.university.sms.model.dto.EnrollmentDTO;
-import ua.university.sms.model.entity.*;
-import ua.university.sms.repository.*;
+import ua.university.sms.model.entity.Course;
+import ua.university.sms.model.entity.Enrollment;
+import ua.university.sms.model.entity.Student;
+import ua.university.sms.repository.CourseRepository;
+import ua.university.sms.repository.EnrollmentRepository;
+import ua.university.sms.repository.StudentRepository;
 import ua.university.sms.exception.ResourceNotFoundException;
 import ua.university.sms.mapper.EnrollmentMapper;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,32 +34,23 @@ public class EnrollmentService {
         Enrollment enrollment = Enrollment.builder()
                 .student(student)
                 .course(course)
+                .enrollmentDate(dto.getEnrollmentDate() != null ? dto.getEnrollmentDate() : LocalDate.now())
                 .grade(dto.getGrade())
-                .paid(dto.isPaid())
+                .paid(false)
                 .build();
 
-        return mapToDTO(enrollmentRepository.save(enrollment));
-    }
-
-    private EnrollmentDTO mapToDTO(Enrollment e) {
-        return EnrollmentDTO.builder()
-                .id(e.getId())
-                .studentId(e.getStudent().getId())
-                .courseId(e.getCourse().getId())
-                .grade(e.getGrade())
-                .paid(e.isPaid())
-                .build();
+        return enrollmentMapper.toDTO(enrollmentRepository.save(enrollment));
     }
 
     public List<EnrollmentDTO> getAllEnrollments() {
         return enrollmentRepository.findAll().stream()
-                .map(this::mapToDTO)
+                .map(enrollmentMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public EnrollmentDTO updateGrade(Long enrollmentId, Double grade) {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Зарахування не знайдено"));
 
         enrollment.setGrade(grade);
         Enrollment saved = enrollmentRepository.save(enrollment);
@@ -64,5 +58,13 @@ public class EnrollmentService {
         studentService.recalculateGPA(saved.getStudent().getId());
 
         return enrollmentMapper.toDTO(saved);
+    }
+
+    public EnrollmentDTO payCourse(Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Зарахування не знайдено"));
+
+        enrollment.setPaid(true);
+        return enrollmentMapper.toDTO(enrollmentRepository.save(enrollment));
     }
 }

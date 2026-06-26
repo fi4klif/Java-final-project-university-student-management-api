@@ -15,8 +15,9 @@ public class StudentController {
     private final StudentService studentService;
 
     @GetMapping
-    public List<StudentDTO> getAll() {
-        return studentService.getAllStudents();
+    public List<StudentDTO> getAll(@RequestParam(required = false) String status,
+            @RequestParam(required = false) Integer year) {
+        return studentService.getStudents(status, year);
     }
 
     @GetMapping("/{id}")
@@ -48,5 +49,10 @@ public class StudentController {
     @GetMapping("/top")
     public List<StudentDTO> getTop(@RequestParam int limit) {
         return studentService.getTopStudents(limit);
+    }
+
+    @GetMapping("/search")
+    public List<StudentDTO> search(@RequestParam String query) {
+        return studentService.searchStudents(query);
     }
 }

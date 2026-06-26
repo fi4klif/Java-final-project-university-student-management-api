@@ -25,7 +25,12 @@ public class StudentService {
         return studentMapper.toDTO(studentRepository.save(student));
     }
 
-    public List<StudentDTO> getAllStudents() {
+    public List<StudentDTO> getStudents(String status, Integer year) {
+        if (status != null || year != null) {
+            return studentRepository.findByStatusAndYear(status, year).stream()
+                    .map(studentMapper::toDTO)
+                    .toList();
+        }
         return studentRepository.findAll().stream()
                 .map(studentMapper::toDTO)
                 .toList();
@@ -85,6 +90,12 @@ public class StudentService {
 
     public List<StudentDTO> getTopStudents(int limit) {
         return studentRepository.findTopStudents(PageRequest.of(0, limit)).stream()
+                .map(studentMapper::toDTO)
+                .toList();
+    }
+
+    public List<StudentDTO> searchStudents(String query) {
+        return studentRepository.searchByQuery(query).stream()
                 .map(studentMapper::toDTO)
                 .toList();
     }

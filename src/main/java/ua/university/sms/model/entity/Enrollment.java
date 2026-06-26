@@ -2,6 +2,7 @@ package ua.university.sms.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -22,6 +23,7 @@ public class Enrollment {
     @JoinColumn(name = "course_id")
     private Course course;
 
+    private LocalDate enrollmentDate;
     private Double grade;
     private boolean paid;
 }

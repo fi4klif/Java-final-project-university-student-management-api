@@ -21,4 +21,14 @@ public class EnrollmentController {
     public List<EnrollmentDTO> getAll() {
         return enrollmentService.getAllEnrollments();
     }
+
+    @PatchMapping("/{id}/grade")
+    public EnrollmentDTO updateGrade(@PathVariable Long id, @RequestParam Double grade) {
+        return enrollmentService.updateGrade(id, grade);
+    }
+
+    @PatchMapping("/{id}/pay")
+    public EnrollmentDTO pay(@PathVariable Long id) {
+        return enrollmentService.payCourse(id);
+    }
 }
