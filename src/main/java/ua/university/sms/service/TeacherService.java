@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ua.university.sms.model.dto.TeacherDTO;
 import ua.university.sms.model.entity.Teacher;
 import ua.university.sms.repository.TeacherRepository;
-import ua.university.sms.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,70 +1,91 @@
 package ua.university.sms.service;
 
 import ua.university.sms.model.dto.StudentDTO;
+import ua.university.sms.model.entity.Enrollment;
 import ua.university.sms.model.entity.Student;
+import ua.university.sms.repository.EnrollmentRepository;
 import ua.university.sms.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ua.university.sms.exception.ResourceNotFoundException;
-
+import ua.university.sms.mapper.StudentMapper;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class StudentService {
-
     private final StudentRepository studentRepository;
+    private final StudentMapper studentMapper;
+    private final EnrollmentRepository enrollmentRepository;
 
-    public Student saveStudent(Student student) {
-        return studentRepository.save(student);
+    public StudentDTO createStudent(StudentDTO dto) {
+        Student student = studentMapper.toEntity(dto);
+        return studentMapper.toDTO(studentRepository.save(student));
     }
 
-    public void saveAll(List<Student> students) {
-        studentRepository.saveAll(students);
+    public List<StudentDTO> getAllStudents() {
+        return studentRepository.findAll().stream()
+                .map(studentMapper::toDTO)
+                .toList();
     }
 
-    public long count() {
-        return studentRepository.count();
+    public StudentDTO getStudentById(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Студента не знайдено"));
+        return studentMapper.toDTO(student);
     }
 
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+    public StudentDTO updateStudent(Long id, StudentDTO dto) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Студента не знайдено"));
+
+        studentMapper.updateStudentFromDto(dto, student);
+        return studentMapper.toDTO(studentRepository.save(student));
     }
 
     public void deleteStudent(Long id) {
         studentRepository.deleteById(id);
     }
 
-    public Student updateStudent(Long id, Student studentDetails) {
-        Student existingStudent = getStudentById(id);
-
-        existingStudent.setFirstName(studentDetails.getFirstName());
-        existingStudent.setLastName(studentDetails.getLastName());
-        existingStudent.setEmail(studentDetails.getEmail());
-        existingStudent.setEnrollmentDate(studentDetails.getEnrollmentDate());
-        existingStudent.setStatus(studentDetails.getStatus());
-        existingStudent.setGpa(studentDetails.getGpa());
-
-        return studentRepository.save(existingStudent);
-
+    public long count() {
+        return studentRepository.count();
     }
 
-    public StudentDTO convertToDTO(Student student) {
-        StudentDTO dto = new StudentDTO();
-        dto.setFirstName(student.getFirstName());
-        dto.setLastName(student.getLastName());
-        dto.setEmail(student.getEmail());
-        dto.setGpa(student.getGpa());
-        return dto;
+    public void saveAllEntities(List<Student> students) {
+        studentRepository.saveAll(students);
     }
 
-    public Student getStudentById(Long id) {
-        return studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Студента з ID " + id + " не знайдено у базі даних"));
+    public void saveAll(List<Student> students) {
+        studentRepository.saveAll(students);
     }
 
-    public List<Student> searchStudentsByLastName(String lastName) {
-        return studentRepository.findByLastNameContainingIgnoreCase(lastName);
+    public void recalculateGPA(Long studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Студент не знайдений"));
+
+        List<Enrollment> enrollments = enrollmentRepository.findByStudentId(studentId);
+
+        double avgGpa = enrollments.stream()
+                .filter(e -> e.getGrade() != null)
+                .mapToDouble(Enrollment::getGrade)
+                .average()
+                .orElse(0.0);
+
+        student.setGpa(avgGpa);
+        studentRepository.save(student);
     }
 
+    public List<StudentDTO> getUnpaidStudents() {
+        return studentRepository.findUnpaidStudents().stream()
+                .map(studentMapper::toDTO)
+                .toList();
+    }
+
+    public List<StudentDTO> getTopStudents(int limit) {
+        return studentRepository.findTopStudents(PageRequest.of(0, limit)).stream()
+                .map(studentMapper::toDTO)
+                .toList();
+    }
 }

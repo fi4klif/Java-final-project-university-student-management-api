@@ -21,4 +21,9 @@ public class CourseController {
     public CourseDTO create(@RequestBody CourseDTO dto) {
         return courseService.createCourse(dto);
     }
+
+    @GetMapping("/{id}/avg-gpa")
+    public Double getAvgGpa(@PathVariable Long id) {
+        return courseService.getAverageGpa(id);
+    }
 }

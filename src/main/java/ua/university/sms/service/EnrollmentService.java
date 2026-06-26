@@ -9,6 +9,8 @@ import ua.university.sms.model.dto.EnrollmentDTO;
 import ua.university.sms.model.entity.*;
 import ua.university.sms.repository.*;
 import ua.university.sms.exception.ResourceNotFoundException;
+import ua.university.sms.mapper.EnrollmentMapper;
+
 import java.util.List;
 
 @Service
@@ -17,6 +19,8 @@ public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
+    private final StudentService studentService;
+    private final EnrollmentMapper enrollmentMapper;
 
     public EnrollmentDTO enrollStudent(EnrollmentDTO dto) {
         Student student = studentRepository.findById(dto.getStudentId())
@@ -48,5 +52,17 @@ public class EnrollmentService {
         return enrollmentRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public EnrollmentDTO updateGrade(Long enrollmentId, Double grade) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
+
+        enrollment.setGrade(grade);
+        Enrollment saved = enrollmentRepository.save(enrollment);
+
+        studentService.recalculateGPA(saved.getStudent().getId());
+
+        return enrollmentMapper.toDTO(saved);
     }
 }

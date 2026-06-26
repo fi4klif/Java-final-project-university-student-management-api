@@ -1,50 +1,52 @@
 package ua.university.sms.controller;
 
 import ua.university.sms.model.dto.StudentDTO;
-import ua.university.sms.model.entity.Student;
 import ua.university.sms.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
 @RequiredArgsConstructor
 public class StudentController {
-
     private final StudentService studentService;
 
     @GetMapping
-    public List<Student> getAllStudents() {
+    public List<StudentDTO> getAll() {
         return studentService.getAllStudents();
     }
 
     @GetMapping("/{id}")
-    public StudentDTO getStudentDTO(@PathVariable Long id) {
-        Student student = studentService.getStudentById(id);
-        return studentService.convertToDTO(student);
+    public StudentDTO getById(@PathVariable Long id) {
+        return studentService.getStudentById(id);
     }
 
     @PostMapping
-    public Student createStudent(@Valid @RequestBody Student student) {
-        return studentService.saveStudent(student);
+    public StudentDTO create(@Valid @RequestBody StudentDTO dto) {
+        return studentService.createStudent(dto);
     }
 
     @PutMapping("/{id}")
-    public Student updateStudent(@PathVariable Long id, @Valid @RequestBody Student studentDetails) {
-        return studentService.updateStudent(id, studentDetails);
+    public StudentDTO update(@PathVariable Long id, @Valid @RequestBody StudentDTO dto) {
+        return studentService.updateStudent(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteStudent(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         studentService.deleteStudent(id);
-        return "Студента з ID " + id + " успішно видалено.";
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search")
-    public List<Student> searchStudents(@RequestParam String lastName) {
-        return studentService.searchStudentsByLastName(lastName);
+    @GetMapping("/unpaid")
+    public List<StudentDTO> getUnpaid() {
+        return studentService.getUnpaidStudents();
+    }
+
+    @GetMapping("/top")
+    public List<StudentDTO> getTop(@RequestParam int limit) {
+        return studentService.getTopStudents(limit);
     }
 }

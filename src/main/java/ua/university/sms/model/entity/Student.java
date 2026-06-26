@@ -33,6 +33,6 @@ public class Student {
     private String status;
 
     @DecimalMin(value = "0.0", message = "Мінімальний бал 0.0")
-    @DecimalMax(value = "5.0", message = "Максимальний бал 5.0")
+    @DecimalMax(value = "10.0", message = "Максимальний бал 10.0")
     private Double gpa;
 }

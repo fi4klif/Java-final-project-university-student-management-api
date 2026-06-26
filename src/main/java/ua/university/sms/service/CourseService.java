@@ -45,4 +45,8 @@ public class CourseService {
                 .teacherId(course.getTeacher() != null ? course.getTeacher().getId() : null)
                 .build();
     }
+
+    public Double getAverageGpa(Long courseId) {
+        return courseRepository.getAverageGradeByCourseId(courseId);
+    }
 }

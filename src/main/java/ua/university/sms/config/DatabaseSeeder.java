@@ -19,6 +19,7 @@ public class DatabaseSeeder {
     @Bean
     public CommandLineRunner initDatabase() {
         return args -> {
+
             if (studentService.count() == 0) {
                 Student student1 = new Student(null, "Олександр", "Петренко", "oleksandr.p@example.com",
                         LocalDate.of(2025, 9, 1), "ACTIVE", 4.5);
